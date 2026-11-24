@@ -131,7 +131,9 @@ fn command_suggestions_active(app: &dyn TuiState, suggestions: &[(String, &'stat
     let mode = composer_mode(app.input(), app.is_remote_mode());
     !suggestions.is_empty()
         && matches!(mode, ComposerMode::SlashCommand | ComposerMode::Chat)
-        && (matches!(mode, ComposerMode::SlashCommand) || !app.is_processing())
+        && (matches!(mode, ComposerMode::SlashCommand)
+            || !app.is_processing()
+            || app::has_at_file_token(app.input()))
 }
 
 /// Draw the Ctrl+R reverse prompt-history search overlay. Reuses the
