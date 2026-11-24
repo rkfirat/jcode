@@ -486,6 +486,11 @@ impl App {
         } else {
             input.len()
         };
+        if !crate::tui::is_ssh_remote()
+            && let Some((start, end)) = super::at_file_completion::active_at_token(input, cursor)
+        {
+            return super::at_file_completion::suggestions(&input[start..end]);
+        }
         let input = super::slash_command_parser::active_token_before_cursor(input, cursor)
             .map_or(input, |(start, end)| &input[start..end]);
         let input = input.trim_start();
@@ -1412,6 +1417,21 @@ impl App {
             return false;
         }
 
+        if let Some((start, end)) =
+            super::at_file_completion::active_at_token(&self.input, self.cursor_pos)
+        {
+            if self.input[start..end] == cmd {
+                return false;
+            }
+            self.remember_input_undo_state();
+            let replacement = if cmd.ends_with('/') { cmd } else { format!("{cmd} ") };
+            self.input.replace_range(start..end, &replacement);
+            self.cursor_pos = start + replacement.len();
+            self.tab_completion_state = None;
+            self.command_suggestion_selected = 0;
+            return true;
+        }
+
         self.remember_input_undo_state();
         self.input = cmd;
         self.cursor_pos = self.input.len();
@@ -1493,6 +1513,11 @@ impl App {
 
     /// Autocomplete current input - cycles through suggestions on repeated Tab
     pub fn autocomplete(&mut self) -> bool {
+        if !crate::tui::is_ssh_remote()
+            && super::at_file_completion::active_at_token(&self.input, self.cursor_pos).is_some()
+        {
+            return self.accept_selected_command_suggestion();
+        }
         if let Some(range) =
             super::slash_command_parser::active_token_before_cursor(&self.input, self.cursor_pos)
         {

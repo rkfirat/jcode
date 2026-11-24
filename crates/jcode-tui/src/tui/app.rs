@@ -114,6 +114,7 @@ pub(crate) mod run_shell;
 mod runtime_memory;
 mod shortcut_hints;
 mod slash_command_parser;
+mod at_file_completion;
 mod spinner_ticker;
 mod split_view;
 mod state_ui;
@@ -156,6 +157,10 @@ pub(crate) fn extract_input_shell_command(input: &str) -> Option<&str> {
 
 pub(crate) fn has_safe_slash_command_token(input: &str) -> bool {
     self::slash_command_parser::active_token_before_cursor(input, input.len()).is_some()
+}
+
+pub(crate) fn has_at_file_token(input: &str) -> bool {
+    self::at_file_completion::active_at_token(input, input.len()).is_some()
 }
 
 pub(crate) const COMMAND_SUGGESTION_VISIBLE_LIMIT: usize = 8;

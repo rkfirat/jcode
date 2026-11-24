@@ -214,7 +214,7 @@ pub(super) fn status_spinner_only_symbol(app: &App) -> Option<&'static str> {
 }
 
 fn is_slash_command_input(input: &str) -> bool {
-    super::has_safe_slash_command_token(input)
+    super::has_safe_slash_command_token(input) || super::has_at_file_token(input)
 }
 
 /// Whether the floating command-suggestion palette may be on screen for the
