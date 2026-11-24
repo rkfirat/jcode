@@ -129,11 +129,11 @@ fn command_suggestions_overlay_rect(
 /// Whether the command palette is active for the current composer state.
 fn command_suggestions_active(app: &dyn TuiState, suggestions: &[(String, &'static str)]) -> bool {
     let mode = composer_mode(app.input(), app.is_remote_mode());
+    // `@file` completion also works in shell mode (`!cat @src/main.rs`).
+    let at_file = app::has_at_file_token(app.input());
     !suggestions.is_empty()
-        && matches!(mode, ComposerMode::SlashCommand | ComposerMode::Chat)
-        && (matches!(mode, ComposerMode::SlashCommand)
-            || !app.is_processing()
-            || app::has_at_file_token(app.input()))
+        && (matches!(mode, ComposerMode::SlashCommand | ComposerMode::Chat) || (mode.is_shell() && at_file))
+        && (matches!(mode, ComposerMode::SlashCommand) || !app.is_processing() || at_file)
 }
 
 /// Draw the Ctrl+R reverse prompt-history search overlay. Reuses the

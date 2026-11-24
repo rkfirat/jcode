@@ -664,6 +664,11 @@ fn handle_input_shell_completed(app: &mut App, shell: InputShellCompleted) {
     app.push_display_message(DisplayMessage::system(
         crate::message::format_input_shell_result_markdown(&shell.result),
     ));
+    // Fork (24.11): `!komut` çıktısı ajana da gider, bir sonraki turda görür.
+    app.append_turn_system_reminder(Some(format!(
+        "The user ran a shell command in the input line (`!`). Its result follows; take it into account.\n\n{}",
+        crate::message::format_input_shell_result_markdown(&shell.result)
+    )));
     app.set_status_notice(crate::message::input_shell_status_notice(&shell.result));
 }
 

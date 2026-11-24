@@ -240,6 +240,20 @@ pub(super) fn handle_input_shell(
             },
         };
 
+        // Ajan da görsün (fork, 24.11): `!komut` çıktısı bir sonraki turda modele gider. Ekranda zaten sonuç kartı
+        // var; bu kayıt System rolüyle gösterilir, çift görünmez.
+        {
+            let text = format!(
+                "<system-reminder>\nThe user ran a shell command in the input line (`!`). Its result follows; take it into account.\n\n{}\n</system-reminder>",
+                crate::message::format_input_shell_result_markdown(&result)
+            );
+            let mut agent_guard = agent.lock().await;
+            agent_guard.add_message_with_display_role(
+                crate::message::Role::User,
+                vec![crate::message::ContentBlock::Text { text, cache_control: None }],
+                Some(crate::session::StoredDisplayRole::System),
+            );
+        }
         let _ = tx.send(ServerEvent::InputShellResult { result });
         let _ = tx.send(ServerEvent::Done { id });
     });
